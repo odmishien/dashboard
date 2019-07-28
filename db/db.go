@@ -8,12 +8,12 @@ import (
 )
 
 var (
-	db  *gorm.db
+	db  *gorm.DB
 	err error
 )
 
 func Init() {
-	db, err = gorm.Open("mysql", "host=localhost port=5432 user=root dbname=dashboard")
+	db, err = gorm.Open("mysql", "root:@tcp(localhost:3306)/dashboard")
 	if err != nil {
 		panic(err)
 	}
