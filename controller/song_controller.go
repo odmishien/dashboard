@@ -8,10 +8,10 @@ import (
 	"dashboard/service"
 )
 
-type UserController struct{}
+type SongController struct{}
 
-func (ctrl UserController) Index(c *gin.Context) {
-	var s service.UserService
+func (ctrl SongController) Index(c *gin.Context) {
+	var s service.SongService
 	result, err := s.GetAll()
 
 	if err != nil {
@@ -22,8 +22,8 @@ func (ctrl UserController) Index(c *gin.Context) {
 	}
 }
 
-func (ctrl UserController) Create(c *gin.Context) {
-	var s service.UserService
+func (ctrl SongController) Create(c *gin.Context) {
+	var s service.SongService
 	result, err := s.CreateModel(c)
 
 	if err != nil {
@@ -34,9 +34,9 @@ func (ctrl UserController) Create(c *gin.Context) {
 	}
 }
 
-func (ctrl UserController) Show(c *gin.Context) {
+func (ctrl SongController) Show(c *gin.Context) {
 	id := c.Params.ByName("id")
-	var s service.UserService
+	var s service.SongService
 	result, err := s.GetByID(id)
 
 	if err != nil {
@@ -47,9 +47,9 @@ func (ctrl UserController) Show(c *gin.Context) {
 	}
 }
 
-func (ctrl UserController) Update(c *gin.Context) {
+func (ctrl SongController) Update(c *gin.Context) {
 	id := c.Params.ByName("id")
-	var s service.UserService
+	var s service.SongService
 	result, err := s.UpdateByID(id, c)
 
 	if err != nil {
@@ -60,9 +60,9 @@ func (ctrl UserController) Update(c *gin.Context) {
 	}
 }
 
-func (ctrl UserController) Delete(c *gin.Context) {
+func (ctrl SongController) Delete(c *gin.Context) {
 	id := c.Params.ByName("id")
-	var s service.UserService
+	var s service.SongService
 	if err := s.DeleteByID(id); err != nil {
 		c.AbortWithStatus(500)
 		fmt.Println(err)

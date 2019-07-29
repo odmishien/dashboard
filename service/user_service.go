@@ -1,4 +1,4 @@
-package user
+package service
 
 import (
 	"github.com/gin-gonic/gin"
@@ -7,11 +7,11 @@ import (
 	"dashboard/entity"
 )
 
-type Service struct{}
+type UserService struct{}
 
 type User entity.User
 
-func (s Service) GetAll() ([]User, error) {
+func (s UserService) GetAll() ([]User, error) {
 	db := db.GetDB()
 	var u []User
 
@@ -22,7 +22,7 @@ func (s Service) GetAll() ([]User, error) {
 	return u, nil
 }
 
-func (s Service) CreateModel(c *gin.Context) (User, error) {
+func (s UserService) CreateModel(c *gin.Context) (User, error) {
 	db := db.GetDB()
 	var u User
 
@@ -37,7 +37,7 @@ func (s Service) CreateModel(c *gin.Context) (User, error) {
 	return u, nil
 }
 
-func (s Service) GetByID(id string) (User, error) {
+func (s UserService) GetByID(id string) (User, error) {
 	db := db.GetDB()
 	var u User
 
@@ -48,7 +48,7 @@ func (s Service) GetByID(id string) (User, error) {
 	return u, nil
 }
 
-func (s Service) UpdateByID(id string, c *gin.Context) (User, error) {
+func (s UserService) UpdateByID(id string, c *gin.Context) (User, error) {
 	db := db.GetDB()
 	var u User
 
@@ -65,7 +65,7 @@ func (s Service) UpdateByID(id string, c *gin.Context) (User, error) {
 	return u, nil
 }
 
-func (s Service) DeleteByID(id string) error {
+func (s UserService) DeleteByID(id string) error {
 	db := db.GetDB()
 	var u User
 
