@@ -1,9 +1,12 @@
 package service
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
+	"strings"
 
-	"dashboard/db"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/sclevine/agouti"
+
 	"dashboard/entity"
 )
 
@@ -11,67 +14,54 @@ type SongService struct{}
 
 type Song entity.Song
 
-func (s SongService) GetAll() ([]Song, error) {
-	db := db.GetDB()
-	var song []Song
-
-	if err := db.Find(&song).Error; err != nil {
+func (s SongService) FindByName(name string) ([]entity.Song, error) {
+	url := fmt.Sprintf("https://www.joysound.com/web/search/song?match=1&keyword=%s", name)
+	songs, err := getSongFromURL(url)
+	if err != nil {
 		return nil, err
 	}
 
-	return song, nil
+	return songs, nil
 }
 
-func (s SongService) CreateModel(c *gin.Context) (Song, error) {
-	db := db.GetDB()
-	var song Song
+func getSongFromURL(url string) ([]entity.Song, error) {
+	var sl []entity.Song
 
-	if err := c.BindJSON(&song); err != nil {
-		return song, err
+	// 動的なサイトなのでChromeで実際に読む
+	driver := agouti.ChromeDriver()
+	err := driver.Start()
+	if err != nil {
+		fmt.Printf("Failed to start driver: %v", err)
+	}
+	defer driver.Stop()
+
+	page, err := driver.NewPage(agouti.Browser("chrome"))
+	if err != nil {
+		fmt.Printf("Failed to open page: %v", err)
 	}
 
-	if err := db.Create(&song).Error; err != nil {
-		return song, err
+	err = page.Navigate(url)
+	if err != nil {
+		fmt.Printf("Failed to navigate: %v", err)
 	}
 
-	return song, nil
-}
-
-func (s SongService) GetByID(id string) (Song, error) {
-	db := db.GetDB()
-	var song Song
-
-	if err := db.Where("id = ?", id).First(&song).Error; err != nil {
-		return song, err
+	// contentにHTMLが入る
+	content, err := page.HTML()
+	if err != nil {
+		fmt.Printf("Failed to get html: %v", err)
 	}
 
-	return song, nil
-}
+	reader := strings.NewReader(content)
+	doc, _ := goquery.NewDocumentFromReader(reader)
 
-func (s SongService) UpdateByID(id string, c *gin.Context) (Song, error) {
-	db := db.GetDB()
-	var song Song
-
-	if err := db.Where("id = ?", id).First(&song).Error; err != nil {
-		return song, err
-	}
-
-	if err := c.BindJSON(&s); err != nil {
-		return song, err
-	}
-
-	db.Save(&song)
-
-	return song, nil
-}
-
-func (s SongService) DeleteByID(id string) error {
-	db := db.GetDB()
-	var song Song
-
-	if err := db.Where("id = ?", id).Delete(&song).Error; err != nil {
-		return err
-	}
-
-	return nil
+	doc.Find("h3.jp-cmp-music-title-001").Each(func(_ int, s *goquery.Selection) {
+		var song entity.Song
+		fmt.Println(s)
+		text := s.Find("h3.jp-cmp-music-title-001").Text()
+		slice := strings.Split(text, "／")
+		song.Name = slice[0]
+		song.Artist = slice[1]
+		sl = append(sl, song)
+	})
+	return sl, nil
 }

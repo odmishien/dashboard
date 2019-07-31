@@ -25,14 +25,20 @@ func router() *gin.Engine {
 		u.DELETE("/:id", ctrl.Delete)
 	}
 
+	ws := r.Group("/wishsongs")
+	{
+		ctrl := controller.WishSongController{}
+		ws.GET("", ctrl.Index)
+		ws.GET("/:id", ctrl.Show)
+		ws.POST("", ctrl.Create)
+		ws.PUT("/:id", ctrl.Update)
+		ws.DELETE("/:id", ctrl.Delete)
+	}
+
 	s := r.Group("/songs")
 	{
 		ctrl := controller.SongController{}
-		s.GET("", ctrl.Index)
-		s.GET("/:id", ctrl.Show)
-		s.POST("", ctrl.Create)
-		s.PUT("/:id", ctrl.Update)
-		s.DELETE("/:id", ctrl.Delete)
+		s.GET("", ctrl.FindByName)
 	}
 
 	return r
